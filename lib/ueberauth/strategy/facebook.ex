@@ -4,6 +4,7 @@ defmodule Ueberauth.Strategy.Facebook do
   """
 
   use Ueberauth.Strategy,
+    ignores_csrf_attack: true,
     default_scope: "email,public_profile",
     profile_fields: "id,email,gender,link,locale,name,timezone,updated_time,verified",
     uid_field: :id,
