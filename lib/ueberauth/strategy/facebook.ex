@@ -11,6 +11,7 @@ defmodule Ueberauth.Strategy.Facebook do
     allowed_request_params: [
       :auth_type,
       :scope,
+      :state,
       :locale,
       :display
     ]
@@ -30,17 +31,29 @@ defmodule Ueberauth.Strategy.Facebook do
 
     opts = oauth_client_options_from_conn(conn)
 
-    params =
+    # params =
+    #   conn.params
+    #   |> maybe_replace_param(conn, "auth_type", :auth_type)
+    #   |> maybe_replace_param(conn, "scope", :default_scope)
+    #   |> maybe_replace_param(conn, "display", :display)
+    #   |> Enum.filter(fn {k, _v} -> Enum.member?(allowed_params, k) end)
+    #   |> Enum.map(fn {k, v} -> {String.to_existing_atom(k), v} end)
+    #   |> Keyword.put(:redirect_uri, callback_url(conn))
+    #   |> with_state_param(conn)
+
+    # redirect!(conn, Ueberauth.Strategy.Facebook.OAuth.authorize_url!(params, opts))
+    authorize_url =
       conn.params
       |> maybe_replace_param(conn, "auth_type", :auth_type)
       |> maybe_replace_param(conn, "scope", :default_scope)
+      |> maybe_replace_param(conn, "state", :state)
       |> maybe_replace_param(conn, "display", :display)
       |> Enum.filter(fn {k, _v} -> Enum.member?(allowed_params, k) end)
       |> Enum.map(fn {k, v} -> {String.to_existing_atom(k), v} end)
       |> Keyword.put(:redirect_uri, callback_url(conn))
-      |> with_state_param(conn)
+      |> Ueberauth.Strategy.Facebook.OAuth.authorize_url!(opts)
 
-    redirect!(conn, Ueberauth.Strategy.Facebook.OAuth.authorize_url!(params, opts))
+    redirect!(conn, authorize_url)
   end
 
   @doc """
